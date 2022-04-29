@@ -5,3 +5,4 @@ dist/tsconfig.build.tsbuildinfo
 .env
 *secrets.*
 dist/
+logs/
