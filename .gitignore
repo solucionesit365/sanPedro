@@ -1,0 +1,7 @@
+node_modules/
+*.map
+.vscode
+dist/tsconfig.build.tsbuildinfo
+.env
+*secrets.*
+dist/
