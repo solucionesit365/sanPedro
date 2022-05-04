@@ -6,3 +6,4 @@ dist/tsconfig.build.tsbuildinfo
 *secrets.*
 dist/
 logs/
+*adminsdk.*

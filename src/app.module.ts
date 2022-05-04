@@ -20,10 +20,11 @@ import { UtilesModule } from './utiles/utiles.module';
 import { EntregasController } from './entregas/entregas.controller';
 import { ImpresorasIpController } from './impresoras-ip/impresoras-ip.controller';
 import { OrdaticController } from './ordatic/ordatic.controller';
+import { AppFirebaseController } from './app-firebase/app-firebase.controller';
 
 @Module({
   imports: [UtilesModule],
-  controllers: [AppController, ClientesController, ParametrosController, DatosController, ArticulosController, MenusController, TeclasController, DependientasController, FamiliasController, PromocionesController, InfoTicketController, CestasController, TestController, TicketsController, TurnosController, EntregasController, ImpresorasIpController, OrdaticController],
+  controllers: [AppController, ClientesController, ParametrosController, DatosController, ArticulosController, MenusController, TeclasController, DependientasController, FamiliasController, PromocionesController, InfoTicketController, CestasController, TestController, TicketsController, TurnosController, EntregasController, ImpresorasIpController, OrdaticController, AppFirebaseController],
   providers: [AppService, SocketsGateway],
 })
 export class AppModule {}
