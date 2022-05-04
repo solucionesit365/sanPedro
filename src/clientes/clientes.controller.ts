@@ -83,6 +83,7 @@ export class ClientesController {
         }        
     }
 
+    /* Solo se utiliza desde Silema-App (firebase) */
     @Post('getClientesEspeciales')
     getClientes(@Body() params) {
         if (UtilesModule.checkVariable(params.database)) {

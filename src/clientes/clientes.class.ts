@@ -148,7 +148,7 @@ export class Clientes {
     }
 
     getClientesEspeciales(database: string, busqueda: string) {
-        return recHit(database, `SELECT TOP 15 Codi as id, Nom as nombre, Nif as nif, Adresa as direccion, Ciutat as ciudad, Cp as cp FROM Clients WHERE Nom like '%${busqueda}%' order by Nom`).then((res) => {
+        return recHit(database, `SELECT Codi as id, Nom as nombre, Nif as nif, Adresa as direccion, Ciutat as ciudad, Cp as cp FROM Clients WHERE Nom like '%${busqueda}%' order by Nom`).then((res) => {
             if (res.recordset.length > 0) {
                 return { error: false, info: res.recordset };
             } else {
