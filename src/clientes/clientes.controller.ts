@@ -82,14 +82,4 @@ export class ClientesController {
             return { error: true, mensaje: 'Error SanPedro: clientes/crearNuevoCliente FALTAN DATOS' };
         }        
     }
-
-    /* Solo se utiliza desde Silema-App (firebase) */
-    @Post('getClientesEspeciales')
-    getClientes(@Body() params) {
-        if (UtilesModule.checkVariable(params.database)) {
-            return clientesInstance.getClientesEspeciales(params.database, params.busqueda);
-        } else {
-            return { error: true, mensaje: 'Error backend: Faltan los parámetros'};
-        }
-    }
 }

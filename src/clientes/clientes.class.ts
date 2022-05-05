@@ -1,5 +1,6 @@
 import { IResult } from "mssql";
-import { recHit } from "src/conexion/mssql";
+import { recHit } from "../conexion/mssql";
+import { getClientes } from "./clientes.mongodb";
 
 export class Clientes {
     comprobarVIP(database: string, idClienteFinal: string) {
@@ -157,6 +158,14 @@ export class Clientes {
         }).catch((err) => {
             console.log(err);
             return { error: true, mensaje: 'Error backend: ' + err.message };
+        });
+    }
+
+    getClientesEspecialesMongo() {
+        return getClientes().then((resClientes) => {
+            return { error: false, info: resClientes };
+        }).catch((err) => {
+            return { error: true, mensaje: 'SanPedro: ' + err.message };
         });
     }
 }

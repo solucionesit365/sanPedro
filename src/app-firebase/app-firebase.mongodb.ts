@@ -1,12 +1,12 @@
 import { InsertManyResult } from "mongodb";
 import { conexion } from "../conexion/mongodb";
 
-// export async function getUnaCesta(): Promise<any> {
-//     const database = (await conexion).db('tocgame');
-//     const cesta = database.collection('cestas');
-//     const resultado = await cesta.findOne();
-//     return resultado;
-// }
+export async function getUsuario(uuid: string): Promise<any> {
+    const database = (await conexion).db('firebase');
+    const usuarios = database.collection('usuarios');
+    const resultado = await usuarios.findOne({ _id: uuid });
+    return resultado;
+}
 
 // export async function getCestaByTrabajadorID(idTrabajador: number) {
 //     const database = (await conexion).db('tocgame');
@@ -22,10 +22,10 @@ import { conexion } from "../conexion/mongodb";
 //     return resultado;
 // }
 
-export async function insertarClientesEspeciales(arrayClientes) {
-    if (await borrarClientes()) {
-        const database = (await conexion).db('firebase');
-        const clientes = database.collection("clientes");
+export async function insertarClientesEspeciales(databaseString: string, arrayClientes) {
+    if (await borrarClientes(databaseString)) {
+        const db = (await conexion).db(databaseString);
+        const clientes = db.collection("clientes");
         const resultado = await clientes.insertMany(arrayClientes);
         
         return resultado;
@@ -39,9 +39,9 @@ export async function insertarClientesEspeciales(arrayClientes) {
     }
 }
 
-export async function borrarClientes() {
+export async function borrarClientes(databaseString: string) {
     try {
-        const database = (await conexion).db('tocgame');
+        const database = (await conexion).db(databaseString);
         const clientes = database.collection("clientes");
         const resultado = await clientes.drop();
         return resultado;
