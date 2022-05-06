@@ -67,4 +67,12 @@ export class AppFirebaseController {
             return { error: true, mensaje: 'Error backend: Faltan los parámetros'};
         }
     }
+
+    @Post('registroUsuario')
+    registroUsuario(@Body() params) {
+        if (UtilesModule.checkVariable(params.token)) {
+            // return {  };
+        }
+        return { error: true, mensaje: 'San Pedro: Error, faltan datos en la petición' };
+    }
 }
