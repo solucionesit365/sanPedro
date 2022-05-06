@@ -1,10 +1,20 @@
-import { InsertManyResult } from "mongodb";
+import { InsertManyResult, ObjectId } from "mongodb";
 import { conexion } from "../conexion/mongodb";
 
 export async function getUsuario(uuid: string): Promise<any> {
     const database = (await conexion).db('firebase');
     const usuarios = database.collection('usuarios');
     const resultado = await usuarios.findOne({ _id: uuid });
+    return resultado;
+}
+
+export async function insertarUsuarioNuevo(uuid: string, email: string) {
+    const database = (await conexion).db('firebase');
+    const usuarios = database.collection('usuarios');
+    const resultado = await usuarios.insertOne({ 
+        _id: new ObjectId(uuid),
+        email
+    });
     return resultado;
 }
 

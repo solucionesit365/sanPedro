@@ -71,7 +71,8 @@ export class AppFirebaseController {
     @Post('registroUsuario')
     registroUsuario(@Body() params) {
         if (UtilesModule.checkVariable(params.token)) {
-            // return {  };
+            const firebaseAppInstance = new AppClass();
+            return firebaseAppInstance.crearUsuario(params.email, params.phoneNumber, params.password, params.displayName, params.nivelAcceso, params.token);
         }
         return { error: true, mensaje: 'San Pedro: Error, faltan datos en la petición' };
     }
