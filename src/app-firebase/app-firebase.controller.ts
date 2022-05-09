@@ -76,4 +76,17 @@ export class AppFirebaseController {
         }
         return { error: true, mensaje: 'San Pedro: Error, faltan datos en la petición' };
     }
+
+    @Post('getInfoUsuarios')
+    getInfoUsuario(@Body() params) {
+        if (UtilesModule.checkVariable(params.token)) {
+            const firebaseAppInstance = new AppClass();
+            return firebaseAppInstance.getInfoUsuario(params.token).then((res) => {
+                return res;
+            }).catch((err) => {
+                return { error: true, mensaje: 'San Pedro: ' + err.message };
+            });
+        }
+        return { error: true, mensaje: 'San Pedro: Error, faltan datos en la petición' };
+    }
 }

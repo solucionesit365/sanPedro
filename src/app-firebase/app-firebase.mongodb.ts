@@ -4,16 +4,17 @@ import { conexion } from "../conexion/mongodb";
 export async function getUsuario(uuid: string): Promise<any> {
     const database = (await conexion).db('firebase');
     const usuarios = database.collection('usuarios');
-    const resultado = await usuarios.findOne({ _id: uuid });
+    const resultado = await usuarios.findOne({ uuid: uuid });
     return resultado;
 }
 
-export async function insertarUsuarioNuevo(uuid: string, email: string) {
+export async function insertarUsuarioNuevo(uuid: string, email: string, nivelAcceso: string) {
     const database = (await conexion).db('firebase');
     const usuarios = database.collection('usuarios');
     const resultado = await usuarios.insertOne({ 
-        _id: new ObjectId(uuid),
-        email
+        uuid: uuid,
+        email,
+        nivelAcceso
     });
     return resultado;
 }

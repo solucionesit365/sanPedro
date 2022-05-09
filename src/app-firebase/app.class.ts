@@ -1,13 +1,14 @@
 import { serviceAccount } from '../adminsdk';
 import * as admin from "firebase-admin";
 import { insertarClientesEspeciales, getUsuario, insertarUsuarioNuevo } from './app-firebase.mongodb';
+import { Devolver } from './app-firebase.interfaces';
 
 const app = admin.initializeApp({
     credential: admin.credential.cert(serviceAccount)
 });
 
 export class AppClass {
-    comprobarToken(tokenId: string) {
+    comprobarToken(tokenId: string): Promise<Devolver> {
         return app.auth().verifyIdToken(tokenId).then((res) => {
             return { error: false, info: res };
         }).catch((err) => {
@@ -102,7 +103,7 @@ export class AppClass {
                                     displayName,
                                     disabled: false,
                                 }).then((res) => {
-                                    return insertarUsuarioNuevo(res.uid, email).then((resInsertUsuario) => {
+                                    return insertarUsuarioNuevo(res.uid, email, nivelAcceso).then((resInsertUsuario) => {
                                         if (resInsertUsuario.acknowledged) {
                                             return { error: false };
                                         }
@@ -132,5 +133,24 @@ export class AppClass {
         } else {
             return { error: true, mensaje: 'SanPedro: Permiso nuevo incorrecto' };
         }
+    }
+
+    getInfoUsuario(token: string): Promise<Devolver> {
+        return this.comprobarToken(token).then((resUser: any) => {
+            if (resUser.error === false) {
+                return getUsuario(resUser.info.uid).then((res) => {
+                    if (res != null) {
+                        return { error: false, info: res };
+                    } else {
+                        return { error: true, mensaje: 'San Pedro: El usuario no existe' };
+                    }
+                }).catch((err) => {
+                    return { error: true, mensaje: err.message };
+                })
+            } else {
+                return resUser;
+            }
+        })
+
     }
 }
