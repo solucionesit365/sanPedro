@@ -68,6 +68,16 @@ export class AppFirebaseController {
         }
     }
 
+    @Post('getArrayPermisosCrear')
+    getArrayPermisosCrear(@Body() params) {
+        if (UtilesModule.checkVariable(params.token)) {
+            const firebaseAppInstance = new AppClass();
+            return firebaseAppInstance.getArrayPermisosCrear(params.token);
+        } else {
+            return { error: true, mensaje: 'Error backend: Faltan los parámetros'};
+        }
+    }
+
     @Post('registroUsuario')
     registroUsuario(@Body() params) {
         if (UtilesModule.checkVariable(params.token)) {

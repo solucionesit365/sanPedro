@@ -3,14 +3,51 @@ import * as admin from "firebase-admin";
 import { insertarClientesEspeciales, getUsuario, insertarUsuarioNuevo } from './app-firebase.mongodb';
 import { Devolver } from './app-firebase.interfaces';
 
+/*
+    ADMIN_TPV, TECNICO_TPV, OFICINA_TPV
+    ADMIN_RRHH, GESTOR_RRHH
+    COORDINADORA_TIENDA, SUPERVISORA_TIENDA, TRABAJADOR_TIENDA
+*/
+
 const app = admin.initializeApp({
     credential: admin.credential.cert(serviceAccount)
 });
 
 export class AppClass {
-    comprobarToken(tokenId: string): Promise<Devolver> {
-        return app.auth().verifyIdToken(tokenId).then((res) => {
-            return { error: false, info: res };
+    getArrayPermisosCrear(token: string) {
+        return this.getInfoUsuario(token).then((res) => {
+            if (!res.error) {
+                const arrNivelAccso = res.info.nivelAcceso.split('_');
+                if (arrNivelAccso[1] === "TPV") {
+                    switch(arrNivelAccso[0]) {
+                        case "ADMIN": return ["ADMIN_TPV", "TECNICO_TPV", "OFICINA_TPV"];
+                        case "TECNICO": return ["TECNICO_TPV", "OFICINA_TPV"];
+                        default: return []
+                    }
+                }
+
+                if (arrNivelAccso[1] === "TIENDA") {
+                    switch(arrNivelAccso[0]) {
+                        case "COORDINADORA": return ["COORDINADORA_TIENDA", "SUPERVISORA_TIENDA", "TRABAJADOR_TIENDA"];
+                        case "SUPERVISORA": return ["TECNICO_TPV", "OFICINA_TPV"];
+                        case "TRABAJADOR": return ["TECNICO_TPV", "OFICINA_TPV"];
+                        default: return []
+                    }
+                }
+
+                if (arrNivelAccso[1] === "RRHH") {
+
+                }                
+
+            } else {
+
+            }
+        });
+    }
+
+    comprobarToken(token: string): Promise<Devolver> {
+        return app.auth().verifyIdToken(token).then((res) => {
+            return { error: false, info: res }; // 'info' tiene el documento completo del usuario que envía el token
         }).catch((err) => {
             return { error: true, mensaje: "SanPedro: " + err.message };
         });
@@ -40,12 +77,6 @@ export class AppClass {
             return { error: true, mensaje: 'SanPedro: ' + err.message};
         });
     }
-
-/*
-    ADMIN_TPV, TECNICO_TPV, OFICINA_TPV
-    ADMIN_RRHH, GESTOR_RRHH
-    COORDINADORA_TIENDA, SUPERVISORA_TIENDA, TRABAJADOR_TIENDA
-*/
 
     comprobarNivelAcceso(nivelAccesoTengo: string, nivelAccesoNecesito: string) {
         const arrNivelAccesoTengo = nivelAccesoTengo.split('_');
