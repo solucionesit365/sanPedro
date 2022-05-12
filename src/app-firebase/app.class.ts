@@ -62,6 +62,13 @@ export class AppClass {
         });
     }
 
+    /* Según el nivel de acceso, aprobar o no la operación */
+    aprobarOperacion(requerido: number, obtenido: number) {
+        if (obtenido <= requerido) {
+            
+        }
+    }
+
     permisosUsuario(uuid: string, nivelAccesoSolicitado: string[]): any {
         return getUsuario(uuid).then((resUsuario) => {
             if (resUsuario) {
