@@ -1,4 +1,4 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Get, Post } from '@nestjs/common';
 import { clientesInstance } from '../clientes/clientes.class';
 import { UtilesModule } from '../utiles/utiles.module';
 import { AppClass } from './app.class';
@@ -68,6 +68,16 @@ export class AppFirebaseController {
         }
     }
 
+    @Post('getArrayPermisosCrear')
+    getArrayPermisosCrear(@Body() params) {
+        if (UtilesModule.checkVariable(params.token)) {
+            const firebaseAppInstance = new AppClass();
+            return firebaseAppInstance.getArrayPermisosCrear(params.token);
+        } else {
+            return { error: true, mensaje: 'Error backend: Faltan los parámetros'};
+        }
+    }
+
     @Post('registroUsuario')
     registroUsuario(@Body() params) {
         if (UtilesModule.checkVariable(params.token)) {
@@ -82,6 +92,32 @@ export class AppFirebaseController {
         if (UtilesModule.checkVariable(params.token)) {
             const firebaseAppInstance = new AppClass();
             return firebaseAppInstance.getInfoUsuario(params.token).then((res) => {
+                return res;
+            }).catch((err) => {
+                return { error: true, mensaje: 'San Pedro: ' + err.message };
+            });
+        }
+        return { error: true, mensaje: 'San Pedro: Error, faltan datos en la petición' };
+    }
+
+    @Post('getTiendas')
+    getTiendas(@Body() params) {
+        if (UtilesModule.checkVariable(params.token)) {
+            const firebaseAppInstance = new AppClass();
+            return firebaseAppInstance.getTiendas(params.token).then((res) => {
+                return res;
+            }).catch((err) => {
+                return { error: true, mensaje: 'San Pedro: ' + err.message };
+            });
+        }
+        return { error: true, mensaje: 'San Pedro: Error, faltan datos en la petición' };
+    }
+
+    @Post('getTrabajaronAyer')
+    getTrabajaronAyer(@Body() params) {
+        if (UtilesModule.checkVariable(params.idToken, params.idTienda)) {
+            const firebaseAppInstance = new AppClass();
+            return firebaseAppInstance.getTrabajaronAyer(params.idToken, params.idTienda).then((res) => {
                 return res;
             }).catch((err) => {
                 return { error: true, mensaje: 'San Pedro: ' + err.message };
