@@ -1,10 +1,11 @@
 import { serviceAccount } from '../adminsdk';
 import * as admin from "firebase-admin";
 import { insertarClientesEspeciales, getUsuario, insertarUsuarioNuevo } from './app-firebase.mongodb';
-import { Devolver, UsuarioInterface } from './app-firebase.interfaces';
+import { Devolver, TrabajadorFichajes, UsuarioInterface } from './app-firebase.interfaces';
 import { recHit } from 'src/conexion/mssql';
 import * as moment from "moment";
 import { TurnosClass } from 'src/turnos/turnos.class';
+import { fechaParaSqlServer, fechaParaSqlServerMoment } from 'src/funciones/fechas';
 /*
     ADMIN_TPV, TECNICO_TPV, OFICINA_TPV
     ADMIN_RRHH, GESTOR_RRHH
@@ -234,7 +235,7 @@ export class AppClass {
             if (resInfoUsuario.error === false) {
                 const database = resInfoUsuario.info.database;
                 const ayer = moment().subtract(1, 'days');
-                const sql = `select fi.tmst, fi.usuari as idTrabajador, de.NOM as nombre, fi.lloc as idTienda from cdpDadesFichador fi LEFT JOIN Dependentes de ON fi.usuari = de.CODI WHERE DAY(tmst) = ${ayer.date()} AND MONTH(tmst) = ${ayer.month()} AND YEAR(tmst) = ${ayer.year()} 
+                const sql = `select fi.tmst, fi.usuari as idTrabajador, de.NOM as nombre, fi.lloc as idTienda from cdpDadesFichador fi LEFT JOIN Dependentes de ON fi.usuari = de.CODI WHERE DAY(tmst) = ${ayer.date()} AND MONTH(tmst) = ${ayer.month()+1} AND YEAR(tmst) = ${ayer.year()} 
                 AND fi.accio = 2 AND fi.lloc = ${idTienda}`;
                 return recHit(database, sql).then(async (resTrabajaronAyer) => {
                     if (resTrabajaronAyer.recordset.length > 0) {
@@ -249,7 +250,16 @@ export class AppClass {
                                 throw Error('Fallo en obtener horas del trabajador 456');
                             }
                         }
-                        return { error: false, info: arrayTrabajadores };                
+                        const sqlInicios = `select tmst, usuari as idTrabajador, lloc as idTienda from cdpDadesFichador WHERE DAY(tmst) = ${ayer.date()} AND MONTH(tmst) = ${ayer.month()+1} AND YEAR(tmst) = ${ayer.year()} 
+                        AND accio = 1 AND lloc = ${idTienda}`;
+                        return recHit(database, sqlInicios).then((resInicios) => {
+                            if (resInicios.recordset.length > 0) {
+                                return { error: false, info: { fichajesEntrada: resInicios.recordset, arrayTrabajadores: arrayTrabajadores } };
+                            }
+                            return { error: true, mensaje: 'San Pedro: No hay fichajes de tipo entrada' };
+                        }).catch((err) => {
+                            return { error: true, mensaje: 'San Pedro: ' + err.message };
+                        });          
                     }
                     return { error: false, info: [] };
                 }).catch((err) => {
@@ -262,5 +272,51 @@ export class AppClass {
         }).catch((err) => {
             return { error: true, mensaje: 'San Pedro: 1 ' + err.message };
         });
+    }
+
+    // async guardarHoras(horasExtra: number, horasCoordinacion: number, horaFichaje: number, codigoTienda: number, database: string, idEmpleado: number) {
+    async guardarHoras(arrayInfoTrabajadores: TrabajadorFichajes[], idToken: string) {
+        const turnosInstance = new TurnosClass();
+        const nivelAccesoRequerido = 1;
+        const tipoUsuarioRequerido = 'TIENDA';
+        let sql = '';
+
+        try {
+            const resInfoUsuario = await this.getInfoUsuario(idToken);
+            if (resInfoUsuario.error === false) {
+                if (this.aprobarOperacionNivel(nivelAccesoRequerido, resInfoUsuario.info.nivelAcceso) && this.aprobarOperacionTipo(tipoUsuarioRequerido, resInfoUsuario.info.tipoUsuario)) {
+                    console.log(arrayInfoTrabajadores);
+                    for (let i = 0; i < arrayInfoTrabajadores.length; i++) {
+                        const horaFichajeDate = moment(arrayInfoTrabajadores[i].tmst).startOf("week").isoWeekday(1);;
+                        const lunes = turnosInstance.getLunesMoment(horaFichajeDate);
+                        const infoTabla = turnosInstance.nombreTablaPlanificacionMoment(lunes);
+                        const fechaSQL = fechaParaSqlServerMoment(horaFichajeDate);
+                        
+                        sql += `
+
+                            DELETE FROM ${infoTabla.nombreTabla} WHERE botiga = ${arrayInfoTrabajadores[i].idTienda} and idTurno like '%_Extra' AND DAY(fecha) = ${horaFichajeDate.date()} AND MONTH(fecha) = ${horaFichajeDate.month()+1} AND YEAR(fecha) = ${horaFichajeDate.year()} AND idEmpleado = ${arrayInfoTrabajadores[i].idTrabajador};
+                            DELETE FROM ${infoTabla.nombreTabla} WHERE botiga = ${arrayInfoTrabajadores[i].idTienda} and idTurno like '%_Coordinacion' AND DAY(fecha) = ${horaFichajeDate.date()} AND MONTH(fecha) = ${horaFichajeDate.month()+1} AND YEAR(fecha) = ${horaFichajeDate.year()} AND idEmpleado = ${arrayInfoTrabajadores[i].idTrabajador};
+                            -- hora fichaje: ${arrayInfoTrabajadores[i].tmst} --- ${horaFichajeDate.date()}/${horaFichajeDate.month()+1}/${horaFichajeDate.year()} ${horaFichajeDate.hours()}:${horaFichajeDate.minutes()}
+                            INSERT INTO ${infoTabla.nombreTabla} VALUES (NEWID(), CONVERT(datetime, '${fechaSQL.year}-${fechaSQL.month}-${fechaSQL.day} ${fechaSQL.hours}:${fechaSQL.minutes}:${fechaSQL.seconds}', 120), ${arrayInfoTrabajadores[i].idTienda}, '${(horaFichajeDate.hours() >= 13) ? ('T') : ('M')}', '${arrayInfoTrabajadores[i].horasExtra}_Extra', ${arrayInfoTrabajadores[i].idTrabajador}, 'SAN PEDRO', GETDATE(), 1);
+                
+                            INSERT INTO ${infoTabla.nombreTabla} VALUES (NEWID(), CONVERT(datetime, '${fechaSQL.year}-${fechaSQL.month}-${fechaSQL.day} ${fechaSQL.hours}:${fechaSQL.minutes}:${fechaSQL.seconds}', 120), ${arrayInfoTrabajadores[i].idTienda}, '${(horaFichajeDate.hours() >= 13) ? ('T') : ('M')}', '${arrayInfoTrabajadores[i].horasCoordinacion}_Coordinacion', ${arrayInfoTrabajadores[i].idTrabajador}, 'SAN PEDRO', GETDATE(), 1);
+                        `;
+                    }
+                    console.log(sql);
+                    return recHit(resInfoUsuario.info.database, sql).then((res) => {
+                        return { error: false };
+                    }).catch((err) => {
+                        console.log(err);
+                        return { error: true, mensaje: 'San Pedro: ' + err.message };
+                    });
+                } else {
+                    return { error: true, mensaje: 'San Pedro: no tienes permisos para realizar esta acción' };
+                }
+            } else {
+                return resInfoUsuario;
+            }
+        } catch(err) {
+            return { error: true, mensaje: err.message };
+        }
     }
 }

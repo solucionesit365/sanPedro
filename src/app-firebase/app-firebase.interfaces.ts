@@ -14,3 +14,13 @@ export interface UsuarioInterface {
     tipoUsuario: 'TPV' | 'TIENDA' | 'RRHH' | 'SUPER_ADMIN'
     database: string
 }
+
+export interface TrabajadorFichajes {
+    tmst: string,
+    idTrabajador: number,
+    nombre: string,
+    idTienda: number,
+    horasExtra: number,
+    horasCoordinacion: number,
+    horasTotales: number
+}

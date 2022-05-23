@@ -1,4 +1,5 @@
 import { Body, Controller, Get, Post } from '@nestjs/common';
+import { TurnosClass } from 'src/turnos/turnos.class';
 import { clientesInstance } from '../clientes/clientes.class';
 import { UtilesModule } from '../utiles/utiles.module';
 import { AppClass } from './app.class';
@@ -124,5 +125,15 @@ export class AppFirebaseController {
             });
         }
         return { error: true, mensaje: 'San Pedro: Error, faltan datos en la petición' };
+    }
+
+    @Post('guardarHoras')
+    async guardarHorasExtraCoordin(@Body() params) {
+        if(UtilesModule.checkVariable(params.token, params.arrayTrabajadores)) {
+            const firebaseAppInstance = new AppClass();
+            return firebaseAppInstance.guardarHoras(params.arrayTrabajadores, params.token);
+        } else {
+            return { error: true, mensaje: 'Error SanPedro: Faltan datos en turnos/guardarHorasExtraCoordinacion' };
+        }
     }
 }

@@ -58,19 +58,4 @@ export class TurnosController {
             return { error: true, mensaje: 'Faltan datos en turnos/getHorasExtraCoordinacion' };
         }
     }
-
-    @Post('guardarHorasExtraCoordinacion')
-    async guardarHorasExtraCoordin(@Body() params) {
-        if(UtilesModule.checkVariable(params.parametros, params.horasExtra, params.horasCoordinacion, params.fechaFichaje, params.idEmpleado)) {
-            const turnosInstance = new TurnosClass();
-            if (await turnosInstance.guardarHorasExtraCoordinacion(params.horasExtra, params.horasCoordinacion, params.fechaFichaje, params.parametros.codigoTienda, params.parametros.database, params.idEmpleado)) {
-                return { error: false };
-            } else {
-                return { error: true, mensaje: 'Error: SanPedro turnos/guardarHorasExtraCoordinacion CATCH' };
-            }
-       
-        } else {
-            return { error: true, mensaje: 'Error SanPedro: Faltan datos en turnos/guardarHorasExtraCoordinacion' };
-        }
-    }
 }

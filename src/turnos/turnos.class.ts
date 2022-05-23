@@ -1,3 +1,4 @@
+import { Moment } from 'moment';
 import { recHit } from '../conexion/mssql';
 import { fechaParaSqlServer } from "../funciones/fechas";
 
@@ -21,6 +22,10 @@ export class TurnosClass {
         diff = d.getDate() - day + (day == 0 ? -6:1);
         return new Date(d.setDate(diff));
     }
+
+    getLunesMoment(d: Moment) {
+        return d.weekday(1);
+    }
     
     nombreTablaPlanificacion(d: Date) {
         var nombre = 'cdpPlanificacion_' + d.getFullYear();
@@ -32,6 +37,18 @@ export class TurnosClass {
             dia: d.getDate(),
             mes: d.getMonth() + 1,
             year: d.getFullYear()
+        };
+    }
+    nombreTablaPlanificacionMoment(d: Moment) {
+        var nombre = 'cdpPlanificacion_' + d.year();
+        var mes = (d.month() + 1 >= 10) ? String(d.month() + 1) : '0' + String(d.month() + 1);
+        var dia = (d.date() >= 10) ? String(d.date()) : '0' + String(d.date());
+    
+        return {
+            nombreTabla: nombre + '_' + mes + '_' + dia,
+            dia: d.date(),
+            mes: d.month() + 1,
+            year: d.year()
         };
     }
 
@@ -58,6 +75,8 @@ export class TurnosClass {
         select ISNULL(@horasCoordinacion, 'NO_HAY') as horasCoordinacion, ISNULL(@horasExtra, 'NO_HAY') as horasExtra
         `;
 
+        console.log('YEEEEEEEEEEEEEEP', sql);
+
         try {
             const res = await recHit(database, sql);
             if (res.recordset.length > 0) {
@@ -81,29 +100,5 @@ export class TurnosClass {
             console.log(err);
             return { error: true, mensaje: err.message };
         };
-    }
-
-    async guardarHorasExtraCoordinacion(horasExtra: number, horasCoordinacion: number, horaFichaje: number, codigoTienda: number, database: string, idEmpleado: number) {
-        console.log("LA HORA FICHAJE ES: ", horaFichaje);
-        const horaFichajeDate = new Date(horaFichaje);
-        const lunes = this.getLunes(horaFichajeDate);
-        const infoTabla = this.nombreTablaPlanificacion(lunes);
-        const fechaSQL = fechaParaSqlServer(horaFichajeDate);
-        
-        const sql = `
-            DELETE FROM ${infoTabla.nombreTabla} WHERE botiga = ${codigoTienda} and idTurno like '%_Extra' AND DAY(fecha) = ${horaFichajeDate.getDate()} AND MONTH(fecha) = ${horaFichajeDate.getMonth()+1} AND YEAR(fecha) = ${horaFichajeDate.getFullYear()} AND idEmpleado = ${idEmpleado};
-            DELETE FROM ${infoTabla.nombreTabla} WHERE botiga = ${codigoTienda} and idTurno like '%_Coordinacion' AND DAY(fecha) = ${horaFichajeDate.getDate()} AND MONTH(fecha) = ${horaFichajeDate.getMonth()+1} AND YEAR(fecha) = ${horaFichajeDate.getFullYear()} AND idEmpleado = ${idEmpleado};
-
-            INSERT INTO ${infoTabla.nombreTabla} VALUES (NEWID(), CONVERT(datetime, '${fechaSQL.year}-${fechaSQL.month}-${fechaSQL.day} ${fechaSQL.hours}:${fechaSQL.minutes}:${fechaSQL.seconds}', 120), ${codigoTienda}, '${(horaFichajeDate.getHours() >= 13) ? ('T') : ('M')}', '${horasExtra}_Extra', ${idEmpleado}, 'SAN PEDRO', GETDATE(), 1);
-
-            INSERT INTO ${infoTabla.nombreTabla} VALUES (NEWID(), CONVERT(datetime, '${fechaSQL.year}-${fechaSQL.month}-${fechaSQL.day} ${fechaSQL.hours}:${fechaSQL.minutes}:${fechaSQL.seconds}', 120), ${codigoTienda}, '${(horaFichajeDate.getHours() >= 13) ? ('T') : ('M')}', '${horasCoordinacion}_Coordinacion', ${idEmpleado}, 'SAN PEDRO', GETDATE(), 1);
-        `;
-
-        return recHit(database, sql).then((res) => {
-            return true;
-        }).catch((err) => {
-            console.log(err);
-            return false;
-        })
     }
 }
