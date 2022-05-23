@@ -11,7 +11,12 @@ import { fechaParaSqlServer, fechaParaSqlServerMoment } from 'src/funciones/fech
     ADMIN_RRHH, GESTOR_RRHH
     COORDINADORA_TIENDA, SUPERVISORA_TIENDA, TRABAJADOR_TIENDA
 */
-
+moment.locale("es", {
+    week: {
+      dow: 1, // First day of week is Monday
+      doy: 4 // First week of year must contain 4 January (7 + 1 - 4)
+    }
+});
 const app = admin.initializeApp({
     credential: admin.credential.cert(serviceAccount)
 });
@@ -287,22 +292,22 @@ export class AppClass {
                 if (this.aprobarOperacionNivel(nivelAccesoRequerido, resInfoUsuario.info.nivelAcceso) && this.aprobarOperacionTipo(tipoUsuarioRequerido, resInfoUsuario.info.tipoUsuario)) {
                     console.log(arrayInfoTrabajadores);
                     for (let i = 0; i < arrayInfoTrabajadores.length; i++) {
-                        const horaFichajeDate = moment(arrayInfoTrabajadores[i].tmst).startOf("week").isoWeekday(1);;
-                        const lunes = turnosInstance.getLunesMoment(horaFichajeDate);
+                        const horaFichajeDate = moment(arrayInfoTrabajadores[i].tmst); //.startOf("week").isoWeekday(1);;
+                        const lunes = moment(arrayInfoTrabajadores[i].tmst).weekday(0); //turnosInstance.getLunesMoment(horaFichajeDate);
                         const infoTabla = turnosInstance.nombreTablaPlanificacionMoment(lunes);
                         const fechaSQL = fechaParaSqlServerMoment(horaFichajeDate);
-                        
+                        const ayer = moment().subtract(1, 'days');
                         sql += `
 
-                            DELETE FROM ${infoTabla.nombreTabla} WHERE botiga = ${arrayInfoTrabajadores[i].idTienda} and idTurno like '%_Extra' AND DAY(fecha) = ${horaFichajeDate.date()} AND MONTH(fecha) = ${horaFichajeDate.month()+1} AND YEAR(fecha) = ${horaFichajeDate.year()} AND idEmpleado = ${arrayInfoTrabajadores[i].idTrabajador};
-                            DELETE FROM ${infoTabla.nombreTabla} WHERE botiga = ${arrayInfoTrabajadores[i].idTienda} and idTurno like '%_Coordinacion' AND DAY(fecha) = ${horaFichajeDate.date()} AND MONTH(fecha) = ${horaFichajeDate.month()+1} AND YEAR(fecha) = ${horaFichajeDate.year()} AND idEmpleado = ${arrayInfoTrabajadores[i].idTrabajador};
+                            DELETE FROM ${infoTabla.nombreTabla} WHERE botiga = ${arrayInfoTrabajadores[i].idTienda} and idTurno like '%_Extra' AND DAY(fecha) = ${ayer.date()} AND MONTH(fecha) = ${ayer.month()+1} AND YEAR(fecha) = ${ayer.year()} AND idEmpleado = ${arrayInfoTrabajadores[i].idTrabajador};
+                            DELETE FROM ${infoTabla.nombreTabla} WHERE botiga = ${arrayInfoTrabajadores[i].idTienda} and idTurno like '%_Coordinacion' AND DAY(fecha) = ${ayer.date()} AND MONTH(fecha) = ${ayer.month()+1} AND YEAR(fecha) = ${ayer.year()} AND idEmpleado = ${arrayInfoTrabajadores[i].idTrabajador};
                             -- hora fichaje: ${arrayInfoTrabajadores[i].tmst} --- ${horaFichajeDate.date()}/${horaFichajeDate.month()+1}/${horaFichajeDate.year()} ${horaFichajeDate.hours()}:${horaFichajeDate.minutes()}
                             INSERT INTO ${infoTabla.nombreTabla} VALUES (NEWID(), CONVERT(datetime, '${fechaSQL.year}-${fechaSQL.month}-${fechaSQL.day} ${fechaSQL.hours}:${fechaSQL.minutes}:${fechaSQL.seconds}', 120), ${arrayInfoTrabajadores[i].idTienda}, '${(horaFichajeDate.hours() >= 13) ? ('T') : ('M')}', '${arrayInfoTrabajadores[i].horasExtra}_Extra', ${arrayInfoTrabajadores[i].idTrabajador}, 'SAN PEDRO', GETDATE(), 1);
                 
                             INSERT INTO ${infoTabla.nombreTabla} VALUES (NEWID(), CONVERT(datetime, '${fechaSQL.year}-${fechaSQL.month}-${fechaSQL.day} ${fechaSQL.hours}:${fechaSQL.minutes}:${fechaSQL.seconds}', 120), ${arrayInfoTrabajadores[i].idTienda}, '${(horaFichajeDate.hours() >= 13) ? ('T') : ('M')}', '${arrayInfoTrabajadores[i].horasCoordinacion}_Coordinacion', ${arrayInfoTrabajadores[i].idTrabajador}, 'SAN PEDRO', GETDATE(), 1);
                         `;
                     }
-                    console.log(sql);
+
                     return recHit(resInfoUsuario.info.database, sql).then((res) => {
                         return { error: false };
                     }).catch((err) => {

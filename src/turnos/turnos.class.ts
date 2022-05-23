@@ -24,7 +24,7 @@ export class TurnosClass {
     }
 
     getLunesMoment(d: Moment) {
-        return d.weekday(1);
+        return d.weekday(0);
     }
     
     nombreTablaPlanificacion(d: Date) {
@@ -74,8 +74,6 @@ export class TurnosClass {
         select @horasExtra = idTurno from ${nombreTabla.nombreTabla} where botiga = ${codigoTienda} and idTurno like '%_Extra' and idEmpleado = ${idTrabajador}
         select ISNULL(@horasCoordinacion, 'NO_HAY') as horasCoordinacion, ISNULL(@horasExtra, 'NO_HAY') as horasExtra
         `;
-
-        console.log('YEEEEEEEEEEEEEEP', sql);
 
         try {
             const res = await recHit(database, sql);
