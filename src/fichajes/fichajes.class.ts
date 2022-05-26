@@ -143,7 +143,7 @@ class FichajesClass {
 
                 let sqlTurno = '';
                 /* El idPlan debe estar definido */
-                if (fichaje.idPlan != undefined && fichaje.idPlan != null && fichaje.tipo == 'ENTRADA') {
+                if (fichaje.idPlan != undefined && fichaje.idPlan != null && fichaje.tipo == 'ENTRADA' && parametros.database.toUpperCase() == 'FAC_TENA') {
                     const turnosInstance = new TurnosClass();
                     const lunes = turnosInstance.getLunes(fechaEntrada);
                     const nombreTablaPlanificacion = turnosInstance.nombreTablaPlanificacion(lunes);
