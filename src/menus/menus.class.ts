@@ -21,18 +21,13 @@ export class MenusClass {
 
 
     getMenus(database: string, codigoCliente: number) {
-        return recHit(database, `SELECT DISTINCT Ambient as nomMenu FROM TeclatsTpv WHERE Llicencia = ${codigoCliente} AND Data = (select MAX(Data) FROM TeclatsTpv WHERE Llicencia = ${codigoCliente} )`).then((res: any) => {
+        return recHit(database, `SELECT DISTINCT Ambient as nomMenu FROM TeclatsTpv WHERE Llicencia = ${codigoCliente} AND Data = (select MAX(Data) FROM TeclatsTpv WHERE Llicencia = ${codigoCliente} )`).then((res: IResult<any>) => {
             if (res) {
                 if (res.recordset.length > 0) {
-                    let doble_menus = this.checkDobleMenus(database, codigoCliente);
-                    let copia:any = res.recordset;
-                    if(doble_menus) {
-                        for(let i in doble_menus) {
-                          
-                            copia = res.recordset.map(j => ({ nomMenu: j.nomMenu.replace(`${doble_menus[i].tag}`, ''), tag: doble_menus[i].tag }));
-                        }
+                    if(this.checkDobleMenus(database, codigoCliente)) {
+                        return res.recordset.map(i => ({nomMenu: i.nomMenu.substring(3), tag: i.nomMenu.substring(0, 2)}));
                     }
-                    return copia;
+                    return res.recordset;
                 }
             }
             return [];
