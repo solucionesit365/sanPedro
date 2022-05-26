@@ -24,7 +24,7 @@ export class MenusClass {
         return recHit(database, `SELECT DISTINCT Ambient as nomMenu FROM TeclatsTpv WHERE Llicencia = ${codigoCliente} AND Data = (select MAX(Data) FROM TeclatsTpv WHERE Llicencia = ${codigoCliente} )`).then((res: IResult<any>) => {
             if (res) {
                 if (res.recordset.length > 0) {
-                    if(this.checkDobleMenus(database, codigoCliente)) {
+                    if(this.checkDobleMenus(database, codigoCliente) && database.toUpperCase() != 'FAC_TENA') {
                         return res.recordset.map(i => ({nomMenu: i.nomMenu.substring(3), tag: i.nomMenu.substring(0, 2)}));
                     }
                     return res.recordset;
