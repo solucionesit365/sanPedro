@@ -81,9 +81,19 @@ export class AppFirebaseController {
 
     @Post('registroUsuario')
     registroUsuario(@Body() params) {
-        if (UtilesModule.checkVariable(params.token)) {
+        if (UtilesModule.checkVariable(
+                params.token,
+                params.email,
+                params.telefono,
+                params.password,
+                params.nombre,
+                params.apellidos,
+                params.dni,
+                params.nivelAcceso,
+                params.tipoSeleccionado
+            )) {
             const firebaseAppInstance = new AppClass();
-            return firebaseAppInstance.crearUsuario(params.email, params.phoneNumber, params.password, params.displayName, params.nivelAcceso, params.token);
+            return firebaseAppInstance.crearUsuario(params.token, params.email, params.phoneNumber, params.password, params.displayName, params.nivelAcceso, params.tipoSeleccionado);
         }
         return { error: true, mensaje: 'San Pedro: Error, faltan datos en la petición' };
     }

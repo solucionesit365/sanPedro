@@ -6,11 +6,7 @@ import { recHit } from 'src/conexion/mssql';
 import * as moment from "moment";
 import { TurnosClass } from 'src/turnos/turnos.class';
 import { fechaParaSqlServer, fechaParaSqlServerMoment } from 'src/funciones/fechas';
-/*
-    ADMIN_TPV, TECNICO_TPV, OFICINA_TPV
-    ADMIN_RRHH, GESTOR_RRHH
-    COORDINADORA_TIENDA, SUPERVISORA_TIENDA, TRABAJADOR_TIENDA
-*/
+
 moment.locale("es", {
     week: {
       dow: 1, // First day of week is Monday
@@ -25,30 +21,39 @@ export class AppClass {
     getArrayPermisosCrear(token: string) {
         return this.getInfoUsuario(token).then((res) => {
             if (!res.error) {
-                const arrNivelAccso = res.info.nivelAcceso.split('_');
-                if (arrNivelAccso[1] === "TPV") {
-                    switch(arrNivelAccso[0]) {
-                        case "ADMIN": return ["ADMIN_TPV", "TECNICO_TPV", "OFICINA_TPV"];
-                        case "TECNICO": return ["TECNICO_TPV", "OFICINA_TPV"];
-                        default: return []
-                    }
+                const nivelAcceso = res.info.nivelAcceso;
+                const tipoUsuario = res.info.tipoUsuario;
+                const objPermisos = {
+                    tipoUsuario: ["RRHH", "TPV", "TIENDA"],
+                    niveles: [{
+                        nivelNombre: "COORDINADOR/A",
+                        valor: 0
+                    }, {
+                        nivelNombre: "SUPERVISOR/A",
+                        valor: 1
+                    }, {
+                        nivelNombre: "BÁSICO",
+                        valor: 2
+                    }]
                 }
 
-                if (arrNivelAccso[1] === "TIENDA") {
-                    switch(arrNivelAccso[0]) {
-                        case "COORDINADORA": return ["COORDINADORA_TIENDA", "SUPERVISORA_TIENDA", "TRABAJADOR_TIENDA"];
-                        case "SUPERVISORA": return ["TECNICO_TPV", "OFICINA_TPV"];
-                        case "TRABAJADOR": return ["TECNICO_TPV", "OFICINA_TPV"];
-                        default: return []
+                if (tipoUsuario === "SUPER_ADMIN") {
+                    return { error: false, info: objPermisos };
+                } else {
+                    let nivelesAccesoReales = [];
+                    for (let i = 0; i < objPermisos.niveles.length; i++) {
+                        if (nivelAcceso <= objPermisos.niveles[i].valor) {
+                            nivelesAccesoReales.push(objPermisos.niveles[i]);
+                        }
+                    }
+                    return {
+                        error: false,
+                        info: {
+                            tipoUsuario: [tipoUsuario],
+                            niveles: nivelesAccesoReales
+                        }
                     }
                 }
-
-                if (arrNivelAccso[1] === "RRHH") {
-
-                }                
-
-            } else {
-
             }
         });
     }
@@ -142,7 +147,7 @@ export class AppClass {
         }
     }
 
-    crearUsuario(email: string, phoneNumber: string, password: string, displayName: string, nivelAcceso: string, token: string) {
+    crearUsuario(token: string, email: string, phoneNumber: string, password: string, displayName: string, nivelAcceso: number, tipoSeleccionado: string) {
         const arrAcceso = nivelAcceso.split('_');
         if (arrAcceso.length === 2) {
             return this.comprobarToken(token).then((resUsuario: any) => {
