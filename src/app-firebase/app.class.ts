@@ -6,6 +6,7 @@ import { recHit } from 'src/conexion/mssql';
 import * as moment from "moment";
 import { TurnosClass } from 'src/turnos/turnos.class';
 import { fechaParaSqlServer, fechaParaSqlServerMoment } from 'src/funciones/fechas';
+import { DecodedIdToken } from 'firebase-admin/lib/auth/token-verifier';
 
 moment.locale("es", {
     week: {
@@ -58,7 +59,7 @@ export class AppClass {
         });
     }
 
-    comprobarToken(token: string): Promise<Devolver> {
+    comprobarToken(token: string) {
         return app.auth().verifyIdToken(token).then((res) => {
             return { error: false, info: res }; // 'info' tiene el documento completo del usuario que envía el token
         }).catch((err) => {
@@ -107,92 +108,92 @@ export class AppClass {
         });
     }
 
-    comprobarNivelAcceso(nivelAccesoTengo: string, nivelAccesoNecesito: string) {
-        const arrNivelAccesoTengo = nivelAccesoTengo.split('_');
-        const arrNivelAccesoNecesito = nivelAccesoNecesito.split('_');
+    // comprobarNivelAcceso(nivelAccesoTengo: string, nivelAccesoNecesito: string) {
+    //     const arrNivelAccesoTengo = nivelAccesoTengo.split('_');
+    //     const arrNivelAccesoNecesito = nivelAccesoNecesito.split('_');
 
-        if (arrNivelAccesoTengo.length === 2 && arrNivelAccesoNecesito.length === 2) {
-            /* Compruebo que sea del área correspondiente o super admin */
-            if (arrNivelAccesoTengo[1] === arrNivelAccesoNecesito[1] || nivelAccesoNecesito === 'SUPER_ADMIN') {
+    //     if (arrNivelAccesoTengo.length === 2 && arrNivelAccesoNecesito.length === 2) {
+    //         /* Compruebo que sea del área correspondiente o super admin */
+    //         if (arrNivelAccesoTengo[1] === arrNivelAccesoNecesito[1] || nivelAccesoNecesito === 'SUPER_ADMIN') {
 
-                if (arrNivelAccesoTengo[1] === 'TPV') {
-                    switch(arrNivelAccesoTengo[0]) {
-                        case "SUPER_ADMIN":
-                        case "ADMIN": return { error: false };
-                        case "TECNICO": if (arrNivelAccesoNecesito[0] === "TECNICO" || arrNivelAccesoNecesito[0] === "OFICINA" ) { return { error: false }; } else { return { error: true, mensaje: "SanPedro: Error, no puedes acceder a este nivel de acceso" }; };
-                        case "OFICINA": if (arrNivelAccesoNecesito[0] === "OFICINA" ) { return { error: false }; } else { return { error: true, mensaje: "SanPedro: Error, no puedes acceder a este nivel de acceso" }; };
-                    }
-                } else if (arrNivelAccesoTengo[1] === 'RRHH') {
-                    switch(arrNivelAccesoTengo[0]) {
-                        case "SUPER_ADMIN":
-                        case "ADMIN": return { error: false };
-                        case "GESTOR": if (arrNivelAccesoNecesito[0] === "GESTOR") { return { error: false }; } else { return { error: true, mensaje: "SanPedro: Error, no puedes acceder a este nivel de acceso" }; };
-                    }
-                } else if (arrNivelAccesoTengo[1] === 'TIENDA') {
-                    switch(arrNivelAccesoTengo[0]) {
-                        case "SUPER_ADMIN":
-                        case "COORDINADORA":return { error: false };
-                        case "SUPERVISORA": if (arrNivelAccesoNecesito[0] === "SUPERVISORA" || arrNivelAccesoNecesito[0] === "TRABAJADOR" ) { return { error: false }; } else { return { error: true, mensaje: "SanPedro: Error, no puedes acceder a este nivel de acceso" }; };
-                        case "TRABAJADOR": if (arrNivelAccesoNecesito[0] === "TRABAJADOR" ) { return { error: false }; } else { return { error: true, mensaje: "SanPedro: Error, no puedes acceder a este nivel de acceso" }; };
-                    }
-                } else {
-                    return { error: true, mensaje: 'SanPedro: Error, nivel de acceso mal asignado' };
-                }
-            } else {
-                return false;
-            }
+    //             if (arrNivelAccesoTengo[1] === 'TPV') {
+    //                 switch(arrNivelAccesoTengo[0]) {
+    //                     case "SUPER_ADMIN":
+    //                     case "ADMIN": return { error: false };
+    //                     case "TECNICO": if (arrNivelAccesoNecesito[0] === "TECNICO" || arrNivelAccesoNecesito[0] === "OFICINA" ) { return { error: false }; } else { return { error: true, mensaje: "SanPedro: Error, no puedes acceder a este nivel de acceso" }; };
+    //                     case "OFICINA": if (arrNivelAccesoNecesito[0] === "OFICINA" ) { return { error: false }; } else { return { error: true, mensaje: "SanPedro: Error, no puedes acceder a este nivel de acceso" }; };
+    //                 }
+    //             } else if (arrNivelAccesoTengo[1] === 'RRHH') {
+    //                 switch(arrNivelAccesoTengo[0]) {
+    //                     case "SUPER_ADMIN":
+    //                     case "ADMIN": return { error: false };
+    //                     case "GESTOR": if (arrNivelAccesoNecesito[0] === "GESTOR") { return { error: false }; } else { return { error: true, mensaje: "SanPedro: Error, no puedes acceder a este nivel de acceso" }; };
+    //                 }
+    //             } else if (arrNivelAccesoTengo[1] === 'TIENDA') {
+    //                 switch(arrNivelAccesoTengo[0]) {
+    //                     case "SUPER_ADMIN":
+    //                     case "COORDINADORA":return { error: false };
+    //                     case "SUPERVISORA": if (arrNivelAccesoNecesito[0] === "SUPERVISORA" || arrNivelAccesoNecesito[0] === "TRABAJADOR" ) { return { error: false }; } else { return { error: true, mensaje: "SanPedro: Error, no puedes acceder a este nivel de acceso" }; };
+    //                     case "TRABAJADOR": if (arrNivelAccesoNecesito[0] === "TRABAJADOR" ) { return { error: false }; } else { return { error: true, mensaje: "SanPedro: Error, no puedes acceder a este nivel de acceso" }; };
+    //                 }
+    //             } else {
+    //                 return { error: true, mensaje: 'SanPedro: Error, nivel de acceso mal asignado' };
+    //             }
+    //         } else {
+    //             return false;
+    //         }
 
-        } else {
-            return { error: true, mensaje: 'SanPedro: Permiso creador incorrecto' };
-        }
-    }
+    //     } else {
+    //         return { error: true, mensaje: 'SanPedro: Permiso creador incorrecto' };
+    //     }
+    // }
 
     crearUsuario(token: string, email: string, phoneNumber: string, password: string, displayName: string, nivelAcceso: number, tipoSeleccionado: string) {
-        const arrAcceso = nivelAcceso.split('_');
-        if (arrAcceso.length === 2) {
-            return this.comprobarToken(token).then((resUsuario: any) => {
-                if (resUsuario.error === false) {
-                    return getUsuario(resUsuario.info.uid).then((infoUsuario) => {
-                        if (infoUsuario) {
-                            if (this.comprobarNivelAcceso(infoUsuario.nivelAcceso, nivelAcceso)) {
-                                return app.auth().createUser({
-                                    email,
-                                    emailVerified: false,
-                                    phoneNumber,
-                                    password,
-                                    displayName,
-                                    disabled: false,
-                                }).then((res) => {
-                                    return insertarUsuarioNuevo(res.uid, email, nivelAcceso).then((resInsertUsuario) => {
-                                        if (resInsertUsuario.acknowledged) {
-                                            return { error: false };
-                                        }
-                                        return { error: true, mensaje: "San Pedro: Error, no se ha podido crear el usuario " };
-                                    }).catch((err) => {
-                                        return { error: true, mensaje: 'San Pedro: '  + err.message};
-                                    });
+        /* Comprueba y devuelve la info del usuario */
+        return this.comprobarToken(token).then((resUsuario: any) => {
+            if (resUsuario.error === false) {
+                return getUsuario(resUsuario.info.uid).then((infoUsuario: UsuarioInterface) => {
+                    if (infoUsuario) {
+                        if (this.aprobarOperacionNivel(nivelAcceso, infoUsuario.nivelAcceso) && this.aprobarOperacionTipo(tipoSeleccionado, infoUsuario.tipoUsuario)) { //this.comprobarNivelAcceso(infoUsuario.nivelAcceso, nivelAcceso)) {
+                            return app.auth().createUser({
+                                email,
+                                emailVerified: false,
+                                phoneNumber,
+                                password,
+                                displayName,
+                                disabled: false,
+                            }).then((res) => {
+                                /* Si entra aquí y luego falla de cualquier manera, hay que eliminar el usuario desde Firebase */
+                                /* El nuevo usuario hereda la base de datos del usuario creador */
+                                return insertarUsuarioNuevo(res.uid, email, nivelAcceso, tipoSeleccionado, infoUsuario.database).then((resInsertUsuario) => {
+                                    if (resInsertUsuario.acknowledged) {
+                                        return { error: false };
+                                    }
+                                    app.auth().deleteUser(res.uid);
+                                    return { error: true, mensaje: "San Pedro: Error, no se ha podido crear el usuario " };
                                 }).catch((err) => {
+                                    app.auth().deleteUser(resUsuario.info.uid);
                                     return { error: true, mensaje: 'San Pedro: '  + err.message};
                                 });
-                            } else {
-                                return { error: true, mensaje: "SanPedro: Permiso creador incorrecto" };
-                            }
+                            }).catch((err) => {
+                                return { error: true, mensaje: 'San Pedro: '  + err.message};
+                            });
                         } else {
-                            return { error: true, mensaje: 'SanPedro: Error, el usuario creador no existe en la BBDD' };
+                            return { error: true, mensaje: "SanPedro: Permiso creador incorrecto" };
                         }
-                    }).catch((err) => {
-                        return { error: true, mensaje: 'SanPedro: ' + err.message };
-                    });
-                } else {
-                    return resUsuario.mensaje;
-                }
+                    } else {
+                        return { error: true, mensaje: 'SanPedro: Error, el usuario creador no existe en la BBDD' };
+                    }
+                }).catch((err) => {
+                    return { error: true, mensaje: 'SanPedro: ' + err.message };
+                });
+            } else {
+                return resUsuario.mensaje;
+            }
 
-            }).catch((err) => {
-                return { error: true, mensaje: 'SanPedro: ' + err.message };
-            });
-        } else {
-            return { error: true, mensaje: 'SanPedro: Permiso nuevo incorrecto' };
-        }
+        }).catch((err) => {
+            return { error: true, mensaje: 'SanPedro: ' + err.message };
+        });
     }
 
     /* Devuelve en info toda la info del usuario */

@@ -95,6 +95,16 @@ export class AppFirebaseController {
             const firebaseAppInstance = new AppClass();
             return firebaseAppInstance.crearUsuario(params.token, params.email, params.phoneNumber, params.password, params.displayName, params.nivelAcceso, params.tipoSeleccionado);
         }
+        console.log(params.token);
+        console.log(params.email);
+        console.log(params.telefono);
+        console.log(params.password);
+        console.log(params.nombre);
+        console.log(params.apellidos);
+        console.log(params.dni);
+        console.log(params.nivelAcceso);
+        console.log(params.tipoSeleccionado);
+
         return { error: true, mensaje: 'San Pedro: Error, faltan datos en la petición' };
     }
 
