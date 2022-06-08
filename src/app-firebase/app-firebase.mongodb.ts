@@ -8,7 +8,7 @@ export async function getUsuario(uuid: string): Promise<any> {
     return resultado;
 }
 
-export async function insertarUsuarioNuevo(uuid: string, email: string, nivelAcceso: number, tipoUsuario: string, bbdd: string) {
+export async function insertarUsuarioNuevo(uuid: string, email: string, nivelAcceso: number, tipoUsuario: string, bbdd: string, dni: string) {
     const database = (await conexion).db('firebase');
     const usuarios = database.collection('usuarios');
     /* email es un índice de tipo unique text */
@@ -17,7 +17,8 @@ export async function insertarUsuarioNuevo(uuid: string, email: string, nivelAcc
         email,
         nivelAcceso,
         tipoUsuario,
-        database: bbdd
+        database: bbdd,
+        dni
     });
     return resultado;
 }

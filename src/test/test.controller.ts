@@ -13,7 +13,7 @@ export class TestController {
         const lol = "dsfaffdsdsaa"
         logger.Info(tienda, lol);
         // logger.Error('wow');
-        return recHit('Fac_Tena', "select * from archivo where id = '{9283882C-6395-4C9E-B32D-D3529E0BEC67}'").then((res) => {
+        return recHit('Fac_Tena', "select * from archivo where id = ''").then((res) => {
             fs.writeFile('C:\\Users\\Eze\\Documents\\GitHub\\sanPedro\\nomina.pdf', res.recordset[0].archivo, function() {
                 console.log("lolaso");
             });

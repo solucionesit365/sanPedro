@@ -148,7 +148,7 @@ export class AppClass {
     //     }
     // }
 
-    crearUsuario(token: string, email: string, phoneNumber: string, password: string, displayName: string, nivelAcceso: number, tipoSeleccionado: string) {
+    crearUsuario(token: string, email: string, phoneNumber: string, password: string, displayName: string, nivelAcceso: number, tipoSeleccionado: string, dni: string) {
         /* Comprueba y devuelve la info del usuario */
         return this.comprobarToken(token).then((resUsuario: any) => {
             if (resUsuario.error === false) {
@@ -165,7 +165,7 @@ export class AppClass {
                             }).then((res) => {
                                 /* Si entra aquí y luego falla de cualquier manera, hay que eliminar el usuario desde Firebase */
                                 /* El nuevo usuario hereda la base de datos del usuario creador */
-                                return insertarUsuarioNuevo(res.uid, email, nivelAcceso, tipoSeleccionado, infoUsuario.database).then((resInsertUsuario) => {
+                                return insertarUsuarioNuevo(res.uid, email, nivelAcceso, tipoSeleccionado, infoUsuario.database, dni).then((resInsertUsuario) => {
                                     if (resInsertUsuario.acknowledged) {
                                         return { error: false };
                                     }

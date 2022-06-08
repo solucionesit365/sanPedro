@@ -93,7 +93,7 @@ export class AppFirebaseController {
                 params.tipoSeleccionado
             )) {
             const firebaseAppInstance = new AppClass();
-            return firebaseAppInstance.crearUsuario(params.token, params.email, params.phoneNumber, params.password, params.displayName, params.nivelAcceso, params.tipoSeleccionado);
+            return firebaseAppInstance.crearUsuario(params.token, params.email, params.phoneNumber, params.password, params.displayName, params.nivelAcceso, params.tipoSeleccionado, params.dni);
         }
         console.log(params.token);
         console.log(params.email);
