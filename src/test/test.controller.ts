@@ -1,5 +1,8 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Get, Post, Res } from '@nestjs/common';
+import { recHit } from 'src/conexion/mssql';
 import { logger } from '../logger/logger.class';
+import * as fs from 'fs';
+import { join } from 'path';
 
 @Controller('test')
 export class TestController {
@@ -10,6 +13,20 @@ export class TestController {
         const lol = "dsfaffdsdsaa"
         logger.Info(tienda, lol);
         // logger.Error('wow');
-        return 69;
+        return recHit('Fac_Tena', "select * from archivo where id = '{9283882C-6395-4C9E-B32D-D3529E0BEC67}'").then((res) => {
+            fs.writeFile('C:\\Users\\Eze\\Documents\\GitHub\\sanPedro\\nomina.pdf', res.recordset[0].archivo, function() {
+                console.log("lolaso");
+            });
+            
+            return res.recordset[0]
+        }).catch((err) => {
+            return err.message
+        })
+    }
+
+    @Get('nomina')
+    getFile(@Res() res: any) {
+      const file = fs.createReadStream(join(process.cwd(), 'nomina.pdf'));
+      file.pipe(res);
     }
 }
