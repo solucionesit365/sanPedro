@@ -49,5 +49,6 @@ export interface TicketsInterface {
         ciudad: string
     },
     cantidadTkrs?: number,
-    regalo?: boolean
+    regalo?: boolean,
+    anulado: boolean
 }

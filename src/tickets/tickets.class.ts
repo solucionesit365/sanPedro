@@ -20,6 +20,15 @@ class TicketsClass {
                 mensaje += 'lista está vacía\n';
             }
 
+            /* Comprobación de anulado */
+            if (ticket.anulado == undefined || ticket.anulado == null) {
+                error = true;
+                mensaje += 'anulado es undefined o null\n';
+            } else {
+                error = true;
+                mensaje += 'anulado está vacía\n';
+            }
+
             /* Comprobación del idTrabajador */
             if (ticket.idTrabajador == undefined || ticket.idTrabajador == null) {
                 error = true;
@@ -125,8 +134,13 @@ class TicketsClass {
                     /* Construcción objeto de tiempo */
                     const infoTime = fechaParaSqlServer(new Date(arrayTickets[0].timestamp));
 
-                    /* Construcción nombre de la tabla destino del ticket indidivual */
-                    let nombreTabla = `[V_Venut_${infoTime.year}-${infoTime.month}]`;
+                    let nombreTabla = '';
+                    /* Si es anulado => anulat || Si es normal => venut */
+                    if (arrayTickets[0].anulado === true) {
+                        nombreTabla = `[V_Anulats_${infoTime.year}-${infoTime.month}]`;
+                    } else {
+                        nombreTabla = `[V_Venut_${infoTime.year}-${infoTime.month}]`;
+                    }
 
                     let numArticulos = arrayTickets[0].lista.length;
                     /* Recorro la cesta del ticket */
