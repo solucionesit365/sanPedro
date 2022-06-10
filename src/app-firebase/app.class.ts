@@ -67,6 +67,18 @@ export class AppClass {
         });
     }
 
+    getUltimasNominas(token: string) {
+        return this.getInfoUsuario(token).then((res) => {
+            if (res.error === false) {
+                return recHit(res.info.database, '')
+            } else {
+                return res;
+            }
+        }).catch((err) => {
+            return { error: true, mensaje: err.message }
+        });
+    }
+
     actualizarClientesEspeciales(databaseString: string, arrayClientes: any[]) {
         return insertarClientesEspeciales(databaseString, arrayClientes).then((res) => {
             return res.acknowledged;

@@ -156,4 +156,14 @@ export class AppFirebaseController {
             return { error: true, mensaje: 'Error SanPedro: Faltan datos en turnos/guardarHorasExtraCoordinacion' };
         }
     }
+
+    @Post('getNominas')
+    getNominas(@Body() params) {
+        if (UtilesModule.checkVariable(params.token)) {
+            const firebaseAppInstance = new AppClass();
+            return firebaseAppInstance.getUltimasNominas(params.token);
+        } else {
+            return {};
+        }
+    }
 }
