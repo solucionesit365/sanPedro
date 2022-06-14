@@ -12,8 +12,24 @@ export class ParametrosController {
             const data2 = await recHit(res1.recordset[0].Db, sqlParaImprimir2);
 
             if (res1.recordset.length === 1) {
-                const dataF = await recHit(res1.recordset[0].Db, `SELECT Valor FROM paramstpv WHERE CodiClient = ${res1.recordset[0].Llicencia} AND (Variable = 'BotonsPreu' OR Variable = 'ProhibirCercaArticles')`);
+               // const dataF = await recHit(res1.recordset[0].Db, `SELECT Valor FROM paramstpv WHERE CodiClient = ${res1.recordset[0].Llicencia} AND (Variable = 'BotonsPreu' OR Variable = 'ProhibirCercaArticles')`);
+               const dataF = await recHit(res1.recordset[0].Db, `SELECT * FROM paramstpv WHERE CodiClient = ${res1.recordset[0].Llicencia} `);
+                
+                let paramstpv ={};
+
+               
+                for (let index = 0; index < dataF.recordset.length; index++) {
+      
+                    if (dataF.recordset[index].Valor == 'Si'){
+                        console.log(dataF.recordset[index].Variable)
+                        paramstpv[dataF.recordset[index].Variable] = dataF.recordset[index].Valor;
+                    }
+                
+                    
+                }
+                console.log(paramstpv);
                 return {
+                    
                     info: {
                         licencia: parseInt(res1.recordset[0].Llicencia),
                         nombreEmpresa: res1.recordset[0].Empresa,
@@ -21,8 +37,7 @@ export class ParametrosController {
                         nombreTienda: data2.recordset[0].Nom,
                         codigoTienda: data2.recordset[0].codigoTienda,
                         ultimoTicket: res1.recordset[0].ultimoIdTicket,
-                        botonesConPrecios: dataF.recordset[0] ? dataF.recordset[0].Valor : 'No',
-                        prohibirBuscarArticulos: dataF.recordset[1] ? dataF.recordset[1].Valor : 'Si',
+                        ...paramstpv,
                         token: res1.recordset[0].token
                     },
                     error: false
