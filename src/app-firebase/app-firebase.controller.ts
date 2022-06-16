@@ -157,11 +157,23 @@ export class AppFirebaseController {
         }
     }
 
-    @Post('getNominas')
-    getNominas(@Body() params) {
-        if (UtilesModule.checkVariable(params.token)) {
+    // @Post('getNominas')
+    // getNominas(@Body() params) {
+    //     if (UtilesModule.checkVariable(params.token)) {
+    //         const firebaseAppInstance = new AppClass();
+    //         return firebaseAppInstance.getUltimasNominas(params.token);
+    //     } else {
+    //         return {};
+    //     }
+
+    // }
+
+    @Post('solicitarVacaciones')
+    solicitarVacaciones(@Body() params) {
+        if (UtilesModule.checkVariable(params.token, params.fechaInicio, params.fechaFinal, params.observaciones)) {
             const firebaseAppInstance = new AppClass();
-            return firebaseAppInstance.getUltimasNominas(params.token);
+            console.log(params.token, params.fechaInicio, params.fechaFinal, params.observaciones);
+            //return firebaseAppInstance.solicitarVacaciones(params.token, params.fechaInicio, params.fechaFinal, params.observaciones);
         } else {
             return {};
         }

@@ -19,6 +19,10 @@ const app = admin.initializeApp({
 });
 
 export class AppClass {
+    solicitarVacaciones(token: string, fechaInicio: number, fechaFinal: number, observaciones: string) {
+        throw new Error('Method not implemented.');
+    }
+
     getArrayPermisosCrear(token: string) {
         return this.getInfoUsuario(token).then((res) => {
             if (!res.error) {
