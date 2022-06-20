@@ -173,7 +173,7 @@ export class AppFirebaseController {
         if (UtilesModule.checkVariable(params.token, params.fechaInicio, params.fechaFinal, params.observaciones)) {
             const firebaseAppInstance = new AppClass();
             console.log(params.token, params.fechaInicio, params.fechaFinal, params.observaciones);
-            //return firebaseAppInstance.solicitarVacaciones(params.token, params.fechaInicio, params.fechaFinal, params.observaciones);
+            return firebaseAppInstance.solicitarVacaciones(params.token, params.fechaInicio, params.fechaFinal, params.observaciones);
         } else {
             return {};
         }
