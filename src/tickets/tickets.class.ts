@@ -20,14 +20,14 @@ class TicketsClass {
                 mensaje += 'lista está vacía\n';
             }
 
-            /* Comprobación de anulado */
-            if (ticket.anulado == undefined || ticket.anulado == null) {
-                error = true;
-                mensaje += 'anulado es undefined o null\n';
-            } else {
-                error = true;
-                mensaje += 'anulado está vacía\n';
-            }
+            // /* Comprobación de anulado */
+            // if (ticket.anulado == undefined || ticket.anulado == null) {
+            //     error = true;
+            //     mensaje += 'anulado es undefined o null\n';
+            // } else {
+            //     error = true;
+            //     mensaje += 'anulado está vacía\n';
+            // }
 
             /* Comprobación del idTrabajador */
             if (ticket.idTrabajador == undefined || ticket.idTrabajador == null) {

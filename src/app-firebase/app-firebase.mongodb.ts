@@ -1,5 +1,6 @@
 import { InsertManyResult, ObjectId } from "mongodb";
 import { conexion } from "../conexion/mongodb";
+import { SolicitudVacaciones } from './app-firebase.interfaces';
 
 export async function getUsuario(uuid: string): Promise<any> {
     const database = (await conexion).db('firebase');
@@ -20,6 +21,28 @@ export async function insertarUsuarioNuevo(uuid: string, email: string, nivelAcc
         database: bbdd,
         dni
     });
+    return resultado;
+}
+
+export async function nuevaSolicitudVacaciones(solicitudVacaciones: SolicitudVacaciones, bbdd: string) {
+    const database = (await conexion).db(bbdd);
+    const vacaciones = database.collection('vacaciones');
+
+    const resultado = await vacaciones.insertOne({
+        uuid: solicitudVacaciones.uuid,
+        fechaInicio: solicitudVacaciones.fechaInicio,
+        fechaFinal: solicitudVacaciones.fechaFinal,
+        observaciones: solicitudVacaciones.observaciones,
+        estado: solicitudVacaciones.estado    
+    });
+    return resultado;
+}
+
+export async function getSolicitudesVacaciones(bbdd: string) {
+    const database = (await conexion).db(bbdd);
+    const vacaciones = database.collection('vacaciones');
+
+    const resultado = await vacaciones.find({}).toArray();
     return resultado;
 }
 

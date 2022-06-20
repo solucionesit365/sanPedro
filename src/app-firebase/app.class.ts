@@ -1,12 +1,13 @@
 import { serviceAccount } from '../adminsdk';
 import * as admin from "firebase-admin";
-import { insertarClientesEspeciales, getUsuario, insertarUsuarioNuevo } from './app-firebase.mongodb';
-import { Devolver, TrabajadorFichajes, UsuarioInterface } from './app-firebase.interfaces';
+import { insertarClientesEspeciales, getUsuario, insertarUsuarioNuevo, nuevaSolicitudVacaciones, getSolicitudesVacaciones } from './app-firebase.mongodb';
+import { Devolver, SolicitudVacaciones, TrabajadorFichajes, UsuarioInterface } from './app-firebase.interfaces';
 import { recHit } from 'src/conexion/mssql';
 import * as moment from "moment";
 import { TurnosClass } from 'src/turnos/turnos.class';
 import { fechaParaSqlServer, fechaParaSqlServerMoment } from 'src/funciones/fechas';
 import { DecodedIdToken } from 'firebase-admin/lib/auth/token-verifier';
+import { StreamableFile } from '@nestjs/common';
 
 moment.locale("es", {
     week: {
@@ -19,10 +20,44 @@ const app = admin.initializeApp({
 });
 
 export class AppClass {
-    solicitarVacaciones(token: string, fechaInicio: number, fechaFinal: number, observaciones: string) {
-        return this.getInfoUsuario(token).then((res) => {
+    getSolicitudesVacaciones(token: string, nivelAccesoRequerido: number, tipoUsuarioRequerido: string) {
+        return this.getInfoUsuario(token).then((res: any) => {
             if (!res.error) {
-                
+                const database: string = res.info.database;
+                if (this.aprobarOperacionNivel(nivelAccesoRequerido, res.info.nivelAcceso) && this.aprobarOperacionTipo(tipoUsuarioRequerido, res.info.tipoUsuario)) {
+                    return getSolicitudesVacaciones(database).then((res) => {
+                        return { error: false, info: res };
+                    }).catch((err) => {
+                        return { error: true, mensaje: err.message };
+                    });
+                } else {
+                    return { error: true, mensaje: 'San Pedro: No tienes permisos para realizar esta acción' };
+                }
+            } else {
+                return res;
+            }
+        }).catch((err) => {
+            return { error: true, mensaje: err.message };
+        });
+    }
+
+    solicitarVacaciones(token: string, fechaInicio: number, fechaFinal: number, observaciones: string) {
+        return this.getInfoUsuario(token).then((res: any) => {
+            if (!res.error) {
+                const nuevaSolicitud: SolicitudVacaciones = {
+                    uuid: res.info.uuid,
+                    fechaInicio: fechaInicio,
+                    fechaFinal: fechaFinal,
+                    observaciones: observaciones,
+                    estado: 'PENDIENTE'
+                }
+
+                return nuevaSolicitudVacaciones(nuevaSolicitud, res.info.database).then((res) => {
+                    if (res.acknowledged) return { error: false }
+                    return { error: true, mensaje: 'San Pedro: Error en nuevaSolicitudVacaciones MongoDB' };
+                }).catch((err) => {
+                    return { error: true, mensaje: err.message };
+                });
             } else {
                 return res;
             }
@@ -80,14 +115,55 @@ export class AppClass {
     }
 
     getUltimasNominas(token: string) {
-        return this.getInfoUsuario(token).then((res) => {
+        return this.getInfoUsuario(token).then((res: any) => {
             if (res.error === false) {
-                return recHit(res.info.database, '')
+                const database: string = res.info.database;
+                const dni: string = res.info.dni;
+                const sql = `
+                DECLARE @idUsuario int = null
+                SELECT @idUsuario = id from dependentesExtes WHERE nom = 'DNI' and valor like '${dni}'
+                SELECT id, nombre, extension, descripcion, mime from archivo WHERE propietario = convert(nvarchar, @idUsuario)
+                `;
+
+                return recHit(database, sql).then((resNominas) => {
+                    if (resNominas.recordset.length > 0) return { error: false, info: resNominas.recordset };
+                    return { error: false, info: [] };
+                }).catch((err) => {
+                    return { error: true, mensaje: err.message };
+                });
             } else {
                 return res;
             }
         }).catch((err) => {
             return { error: true, mensaje: err.message }
+        });
+    }
+
+    getArchivoNomina(token: string, idArchivo: string) {
+
+        return this.getInfoUsuario(token).then((res: any) => {
+            if (!res.error) {
+                const dni: string = res.info.dni;
+                const database: string = res.info.database;
+                const sql = `
+                    DECLARE @idUsuario int = null
+                    select @idUsuario = id from dependentesExtes where nom = 'DNI' and valor like '${dni}'
+                    select archivo from archivo where propietario = convert(nvarchar, @idUsuario) AND id = '${idArchivo}'
+                `;
+                return recHit(database, sql).then((res) => {
+                    if (res.recordset.length > 0) {
+                        return new StreamableFile(res.recordset[0].archivo);
+                    } else {
+                        return null;
+                    }
+                })
+            } else {
+                console.log("STEP 3: ERROR", res.mensaje);
+                return null;
+            }
+        }).catch((err) => {
+            console.log(err.message);
+            return null;
         });
     }
 

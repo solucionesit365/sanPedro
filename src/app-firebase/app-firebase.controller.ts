@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, StreamableFile } from '@nestjs/common';
 import { TurnosClass } from 'src/turnos/turnos.class';
 import { clientesInstance } from '../clientes/clientes.class';
 import { UtilesModule } from '../utiles/utiles.module';
@@ -157,16 +157,16 @@ export class AppFirebaseController {
         }
     }
 
-    // @Post('getNominas')
-    // getNominas(@Body() params) {
-    //     if (UtilesModule.checkVariable(params.token)) {
-    //         const firebaseAppInstance = new AppClass();
-    //         return firebaseAppInstance.getUltimasNominas(params.token);
-    //     } else {
-    //         return {};
-    //     }
+    @Post('getNominas')
+    getNominas(@Body() params) {
+        if (UtilesModule.checkVariable(params.token)) {
+            const firebaseAppInstance = new AppClass();
+            return firebaseAppInstance.getUltimasNominas(params.token);
+        } else {
+            return {};
+        }
 
-    // }
+    }
 
     @Post('solicitarVacaciones')
     solicitarVacaciones(@Body() params) {
@@ -176,6 +176,34 @@ export class AppFirebaseController {
             return firebaseAppInstance.solicitarVacaciones(params.token, params.fechaInicio, params.fechaFinal, params.observaciones);
         } else {
             return {};
+        }
+    }
+
+    @Post('getSolicitudesVacaciones')
+    getSolicitudes(@Body() params) {
+        if (UtilesModule.checkVariable(params.token)) {
+            const firebaseAppInstance = new AppClass();
+            const nivelAcceso = 0;
+            const tipoUsuario = 'RRHH';
+            return firebaseAppInstance.getSolicitudesVacaciones(params.token, nivelAcceso, tipoUsuario).catch((err) => {
+                return { error: true, mensaje: err.message };
+            });
+        } else {
+            return { error: true, mensaje: 'San Pedro: Falta el token' };
+        }
+    }
+
+    @Post('descargarNomina')
+    testlol(@Body() params): Promise<StreamableFile> {
+        if (UtilesModule.checkVariable(params.token, params.idArchivo)) {
+            const firebaseAppInstance = new AppClass();
+            console.log(params.idArchivo)
+            return firebaseAppInstance.getArchivoNomina(params.token, params.idArchivo).catch((err) => {
+                console.log(err.message);
+                return null;
+            });
+        } else {
+            return null;
         }
     }
 }

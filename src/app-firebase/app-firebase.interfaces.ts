@@ -12,7 +12,8 @@ export interface UsuarioInterface {
     email: string,
     nivelAcceso: number,
     tipoUsuario: 'TPV' | 'TIENDA' | 'RRHH' | 'SUPER_ADMIN'
-    database: string
+    database: string,
+    dni: string
 }
 
 export interface TrabajadorFichajes {
@@ -23,4 +24,12 @@ export interface TrabajadorFichajes {
     horasExtra: number,
     horasCoordinacion: number,
     horasTotales: number
+}
+
+export interface SolicitudVacaciones {
+    uuid: string,
+    fechaInicio: number,
+    fechaFinal: number,
+    observaciones: string,
+    estado: 'APROBADA' | 'PENDIENTE' | 'RECHAZADA'
 }
