@@ -41,7 +41,7 @@ export class AppClass {
         });
     }
 
-    solicitarVacaciones(token: string, fechaInicio: number, fechaFinal: number, observaciones: string) {
+    solicitarVacaciones(token: string, fechaInicio: number, fechaFinal: number, observaciones: string, displayName: string) {
         return this.getInfoUsuario(token).then((res: any) => {
             if (!res.error) {
                 const nuevaSolicitud: SolicitudVacaciones = {
@@ -49,7 +49,8 @@ export class AppClass {
                     fechaInicio: fechaInicio,
                     fechaFinal: fechaFinal,
                     observaciones: observaciones,
-                    estado: 'PENDIENTE'
+                    estado: 'PENDIENTE',
+                    displayName
                 }
 
                 return nuevaSolicitudVacaciones(nuevaSolicitud, res.info.database).then((res) => {

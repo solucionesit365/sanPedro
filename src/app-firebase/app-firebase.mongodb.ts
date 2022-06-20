@@ -33,7 +33,8 @@ export async function nuevaSolicitudVacaciones(solicitudVacaciones: SolicitudVac
         fechaInicio: solicitudVacaciones.fechaInicio,
         fechaFinal: solicitudVacaciones.fechaFinal,
         observaciones: solicitudVacaciones.observaciones,
-        estado: solicitudVacaciones.estado    
+        estado: solicitudVacaciones.estado,
+        displayName: solicitudVacaciones.displayName
     });
     return resultado;
 }

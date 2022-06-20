@@ -31,5 +31,6 @@ export interface SolicitudVacaciones {
     fechaInicio: number,
     fechaFinal: number,
     observaciones: string,
-    estado: 'APROBADA' | 'PENDIENTE' | 'RECHAZADA'
+    estado: 'APROBADA' | 'PENDIENTE' | 'RECHAZADA',
+    displayName: string
 }
