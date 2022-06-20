@@ -179,6 +179,20 @@ export class AppFirebaseController {
         }
     }
 
+    @Post('setEstadoVacaciones')
+    setEstadoVacaciones(@Body() params) {
+        if (UtilesModule.checkVariable(params.token, params.idPeticionVacaciones, params.nuevoEstado)) {
+            const nivelAcceso = 0;
+            const tipoUsuario = 'RRHH';
+            const firebaseAppInstance = new AppClass();
+            return firebaseAppInstance.setEstadoVacaciones(params.token, params.idPeticionVacaciones, nivelAcceso, tipoUsuario, params.nuevoEstado).catch((err) => {
+                return { error: true, mensaje: err.message };
+            });
+        } else {
+            return { error: true, mensaje: 'San Pedro: Faltan datos' };
+        }
+    }
+
     @Post('getSolicitudesVacaciones')
     getSolicitudes(@Body() params) {
         if (UtilesModule.checkVariable(params.token)) {

@@ -46,6 +46,15 @@ export async function getSolicitudesVacaciones(bbdd: string) {
     return resultado;
 }
 
+export async function setEstadoVacaciones(estado: 'APROBADA' | 'PENDIENTE' | 'RECHAZADA', bbdd: string, idPeticionVacaciones: string) {
+    const database = (await conexion).db(bbdd);
+    const vacaciones = database.collection('vacaciones');
+
+    const resultado = await vacaciones.updateOne({ _id: new ObjectId(idPeticionVacaciones)}, { $set: { estado: estado }});
+
+    return resultado;
+}
+
 // export async function getCestaByTrabajadorID(idTrabajador: number) {
 //     const database = (await conexion).db('tocgame');
 //     const cesta = database.collection('cestas');

@@ -1,6 +1,6 @@
 import { serviceAccount } from '../adminsdk';
 import * as admin from "firebase-admin";
-import { insertarClientesEspeciales, getUsuario, insertarUsuarioNuevo, nuevaSolicitudVacaciones, getSolicitudesVacaciones } from './app-firebase.mongodb';
+import { insertarClientesEspeciales, getUsuario, insertarUsuarioNuevo, nuevaSolicitudVacaciones, getSolicitudesVacaciones, setEstadoVacaciones } from './app-firebase.mongodb';
 import { Devolver, SolicitudVacaciones, TrabajadorFichajes, UsuarioInterface } from './app-firebase.interfaces';
 import { recHit } from 'src/conexion/mssql';
 import * as moment from "moment";
@@ -58,6 +58,34 @@ export class AppClass {
                 }).catch((err) => {
                     return { error: true, mensaje: err.message };
                 });
+            } else {
+                return res;
+            }
+        }).catch((err) => {
+            return { error: true, mensaje: err.message };
+        });
+    }
+
+    setEstadoVacaciones(token: string, idPeticionVacaciones: string, nivelAccesoRequerido: number, tipoUsuarioRequerido: string, nuevoEstado: string) {
+        return this.getInfoUsuario(token).then((res: any) => {
+            if (!res.error) {
+                if (this.aprobarOperacionNivel(nivelAccesoRequerido, res.info.nivelAcceso) && this.aprobarOperacionTipo(tipoUsuarioRequerido, res.info.tipoUsuario)) {
+                    if (nuevoEstado == 'APROBADA' || nuevoEstado == 'PENDIENTE' || nuevoEstado == 'RECHAZADA') {
+                        return setEstadoVacaciones(nuevoEstado, res.info.database, idPeticionVacaciones).then((resMongo) => {
+                            if (resMongo.acknowledged) {
+                                return  { error: false };
+                            } else {
+                                return { error: true, mensaje: 'San Pedro: Error al actualizar el estado en MongoDB' };
+                            };
+                        }).catch((err) => {
+                            return { error: true, mensaje: err.message };
+                        });
+                    } else {
+                        return { error: true, mensaje: 'San Pedro: El nuevo estado no es válido' };
+                    }
+                } else {
+                    return { error: true, mensaje: 'San Pedro: no tienes permisos para realizar esta acción' };
+                }
             } else {
                 return res;
             }
