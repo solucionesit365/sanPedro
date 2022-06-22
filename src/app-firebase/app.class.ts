@@ -1,6 +1,6 @@
 import { serviceAccount } from '../adminsdk';
 import * as admin from "firebase-admin";
-import { insertarClientesEspeciales, getUsuario, insertarUsuarioNuevo, nuevaSolicitudVacaciones, getSolicitudesVacaciones, setEstadoVacaciones } from './app-firebase.mongodb';
+import { insertarClientesEspeciales, getUsuario, getBajasLaborales, insertarBajaLaboral, insertarUsuarioNuevo, nuevaSolicitudVacaciones, getSolicitudesVacaciones, setEstadoVacaciones } from './app-firebase.mongodb';
 import { Devolver, SolicitudVacaciones, TrabajadorFichajes, UsuarioInterface } from './app-firebase.interfaces';
 import { recHit } from 'src/conexion/mssql';
 import * as moment from "moment";
@@ -92,6 +92,48 @@ export class AppClass {
             }
         }).catch((err) => {
             return { error: true, mensaje: err.message };
+        });
+    }
+
+    enviarBajaLaboral(token: string, fechaInicio: number, fechaFinal: number, archivo: string, observaciones: string) {
+        return this.getInfoUsuario(token).then((res: any) => {
+            if (!res.error) {
+                const user: UsuarioInterface = res.info;
+                return insertarBajaLaboral(user.uuid, user.database, fechaInicio, fechaFinal, observaciones, archivo).then((res) => {
+                    if (res.acknowledged) {
+                        return { error: false };
+                    } else {
+                        return { error: true, mensaje: 'San Pedro: No se ha podido insertar la baja laboral' };
+                    }
+                }).catch((err) => {
+                    return { error: true, mensaje: 'San Pedro: ' + err.message };
+                });
+            } else {
+                return res;
+            }
+        }).catch((err) => {
+            return { error: true, mensaje: err.message };
+        });
+    }
+
+    getBajasLaborales(token: string, nivelAccesoRequerido: number, tipoUsuarioRequerido: string) {
+        return this.getInfoUsuario(token).then((res: any) => {
+            if (!res.error) {
+                const user: UsuarioInterface = res.info;
+                if (this.aprobarOperacionNivel(nivelAccesoRequerido, user.nivelAcceso) && this.aprobarOperacionTipo(tipoUsuarioRequerido, user.tipoUsuario)) {
+                    return getBajasLaborales(user.database).then((res) => {
+                        return { error: false, info: res };
+                    }).catch((err) => {
+                        return { error: true, mensaje: 'San Pedro: ' + err.message };
+                    })
+                } else {
+                    return { error: true, mensaje: 'San Pedro: no tienes permisos para realizar esta acción' };
+                }
+            } else {
+                return res;
+            }
+        }).catch((err) => {
+            return { error: true, mensaje: 'San Pedro: ' + err.message };
         });
     }
 

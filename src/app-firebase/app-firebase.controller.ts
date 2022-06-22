@@ -220,4 +220,30 @@ export class AppFirebaseController {
             return null;
         }
     }
+
+    @Post('enviarBajaLaboral')
+    enviarBajaLaboral(@Body() params) {
+        if (UtilesModule.checkVariable(params.token, params.fechaInicio, params.fechaFinal, params.archivo, params.observaciones)) {
+            const firebaseAppInstance = new AppClass();
+            return firebaseAppInstance.enviarBajaLaboral(params.token, params.fechaInicio, params.fechaFinal, params.archivo, params.observaciones).catch((err) => {
+                return { error: true, mensaje: 'SanPedro: ' + err.message };
+            });
+        } else {
+            return { error: true, mensaje: 'San Pedro: Faltan datos' };
+        }
+    }
+
+    @Post('getBajasLaborales')
+    getBajasLaborales(@Body() params) {
+        if (UtilesModule.checkVariable(params.token)) {
+            const nivelAcceso = 0;
+            const tipoUsuario = 'RRHH';
+            const firebaseAppInstance = new AppClass();
+            return firebaseAppInstance.getBajasLaborales(params.token, nivelAcceso, tipoUsuario).catch((err) => {
+                return { error: false, mensaje: 'San Pedro: ' + err.message };
+            });
+        } else {
+            return { error: true, mensaje: 'San Pedro: Faltan datos' };
+        }
+    }
 }

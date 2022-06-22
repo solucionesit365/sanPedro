@@ -24,6 +24,19 @@ export async function insertarUsuarioNuevo(uuid: string, email: string, nivelAcc
     return resultado;
 }
 
+export async function insertarBajaLaboral(uuid: string, bbdd: string, fechaInicio: number, fechaFinal: number, observaciones: string, archivo: string) {
+    const database = (await conexion).db(bbdd);
+    const bajas = database.collection('bajas');
+    const resultado = await bajas.insertOne({ 
+        uuid,
+        fechaInicio,
+        fechaFinal,
+        archivo,
+        observaciones
+    });
+    return resultado;
+}
+
 export async function nuevaSolicitudVacaciones(solicitudVacaciones: SolicitudVacaciones, bbdd: string) {
     const database = (await conexion).db(bbdd);
     const vacaciones = database.collection('vacaciones');
@@ -44,6 +57,14 @@ export async function getSolicitudesVacaciones(bbdd: string) {
     const vacaciones = database.collection('vacaciones');
 
     const resultado = await vacaciones.find({}).toArray();
+    return resultado;
+}
+
+export async function getBajasLaborales(bbdd: string) {
+    const database = (await conexion).db(bbdd);
+    const bajas = database.collection('bajas');
+    const resultado = await bajas.find({}).toArray();
+    
     return resultado;
 }
 
