@@ -5,9 +5,11 @@ import { PASSWORD_INSTALLWIZARD } from '../secrets';
 export class ParametrosController {
     @Post('instaladorLicencia')
     async instaladorLicencia(@Body() data) {
+        console.log(data)
         if (data.password == PASSWORD_INSTALLWIZARD) {
             const sqlParaImprimir = `SELECT ll.Llicencia, ll.Empresa, ll.LastAccess, we.Db, ISNULL(ti.ultimoIdTicket, 0) as ultimoIdTicket, ti.token FROM llicencies ll LEFT JOIN Web_Empreses we ON ll.Empresa = we.Nom LEFT JOIN tocGameInfo ti ON ti.licencia = ${data.numLlicencia} WHERE ll.Llicencia = ${data.numLlicencia}`;
             const res1 = await recHit('Hit', sqlParaImprimir);
+            console.log(res1)
             const sqlParaImprimir2 = `SELECT Nom, Codi as codigoTienda FROM clients WHERE Codi = (SELECT Valor1 FROM ParamsHw WHERE Codi = ${res1.recordset[0].Llicencia})`;
             const data2 = await recHit(res1.recordset[0].Db, sqlParaImprimir2);
 
