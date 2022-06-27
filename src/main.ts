@@ -1,4 +1,5 @@
 import { NestFactory } from '@nestjs/core';
+const express = require('express');
 import { AppModule } from './app.module';
 
 async function bootstrap() {
@@ -7,6 +8,7 @@ async function bootstrap() {
     credentials: true
   }});
   // app.enableCors();
+  app.use(express.json({limit: '20mb'}));
   await app.listen(3001);
 }
 bootstrap();
