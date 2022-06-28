@@ -24,15 +24,16 @@ export async function insertarUsuarioNuevo(uuid: string, email: string, nivelAcc
     return resultado;
 }
 
-export async function insertarBajaLaboral(uuid: string, bbdd: string, fechaInicio: number, fechaFinal: number, observaciones: string, archivo: string) {
+export async function insertarBajaLaboral(uuid: string, bbdd: string, fechaInicio: number, fechaFinal: number, observaciones: string, archivo: string, displayName: string) {
     const database = (await conexion).db(bbdd);
     const bajas = database.collection('bajas');
-    const resultado = await bajas.insertOne({ 
+    const resultado = await bajas.insertOne({
         uuid,
         fechaInicio,
         fechaFinal,
         archivo,
-        observaciones
+        observaciones,
+        displayName
     });
     return resultado;
 }
