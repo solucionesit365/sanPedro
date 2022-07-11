@@ -20,4 +20,16 @@ export class MenusController {
             return { error: true, mensaje: 'SanPedro: faltan todos los datos menus/getMenus' };
         }
     }
+    @Post('getDobleMenu')
+    getDobleMenu(@Body() params) {
+        if (params != undefined && params != null) {
+            if (params.database != null && params.database != undefined && params.codigoTienda != null && params.codigoTienda != undefined) {
+                return menusInstance.getDobleMenus(params.database, params.codigoTienda)
+            } else {
+                return { error: true, mensaje: 'SanPedro: faltan algunos datos menus/getMenus' };
+            }
+        } else {
+            return { error: true, mensaje: 'SanPedro: faltan todos los datos menus/getMenus' };
+        }
+    }
 }
