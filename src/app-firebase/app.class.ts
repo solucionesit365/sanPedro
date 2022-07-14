@@ -95,11 +95,11 @@ export class AppClass {
         });
     }
 
-    enviarBajaLaboral(token: string, fechaInicio: number, fechaFinal: number, archivo: string, observaciones: string) {
+    enviarBajaLaboral(token: string, fechaInicio: number, fechaFinal: number, archivo: string, observaciones: string, displayName: string) {
         return this.getInfoUsuario(token).then((res: any) => {
             if (!res.error) {
                 const user: UsuarioInterface = res.info;
-                return insertarBajaLaboral(user.uuid, user.database, fechaInicio, fechaFinal, observaciones, archivo).then((res) => {
+                return insertarBajaLaboral(user.uuid, user.database, fechaInicio, fechaFinal, observaciones, archivo, displayName).then((res) => {
                     if (res.acknowledged) {
                         return { error: false };
                     } else {

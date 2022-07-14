@@ -223,9 +223,9 @@ export class AppFirebaseController {
 
     @Post('enviarBajaLaboral')
     enviarBajaLaboral(@Body() params) {
-        if (UtilesModule.checkVariable(params.token, params.fechaInicio, params.fechaFinal, params.archivo, params.observaciones)) {
+        if (UtilesModule.checkVariable(params.token, params.fechaInicio, params.fechaFinal, params.archivo, params.observaciones, params.displayName)) {
             const firebaseAppInstance = new AppClass();
-            return firebaseAppInstance.enviarBajaLaboral(params.token, params.fechaInicio, params.fechaFinal, params.archivo, params.observaciones).catch((err) => {
+            return firebaseAppInstance.enviarBajaLaboral(params.token, params.fechaInicio, params.fechaFinal, params.archivo, params.observaciones, params.displayName).catch((err) => {
                 return { error: true, mensaje: 'SanPedro: ' + err.message };
             });
         } else {
