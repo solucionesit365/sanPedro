@@ -20,7 +20,8 @@ export interface TicketsInterface {
             }
         },
         subtotal: number,
-        unidades: number
+        unidades: number,
+        suplementosId?: []
     }[],
     tipoPago: string,
     idTrabajador: number,
