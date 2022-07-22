@@ -32,7 +32,14 @@ export class Clientes {
                         END
                 END
             ELSE
-                SELECT 0 as esVIP, 1 as pagaEnTienda, Punts AS puntos FROM punts WHERE idClient = '${idClienteFinal}'
+                IF EXISTS (SELECT 0 as esVIP, 1 as pagaEnTienda, Punts AS puntos FROM punts WHERE idClient = '${idClienteFinal}')
+                    BEGIN
+                        SELECT 0 as esVIP, 1 as pagaEnTienda, Punts AS puntos FROM punts WHERE idClient = '${idClienteFinal}'
+                    END
+                ELSE
+                    BEGIN
+                        SELECT 0 as esVIP, 1 as pagaEnTienda, 0 AS puntos
+                    END
         `;
         return recHit(database, sql).then((res: IResult<any>) => {
             const recordset = res.recordset;
